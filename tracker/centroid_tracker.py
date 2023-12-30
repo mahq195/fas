@@ -113,7 +113,7 @@ class CentroidTracker():
                     self.register(centroid, rect)
                     new_register = True
             
-            if D[0][0] > 20:
+            if D[0][0] > 50:
                 new_register = True
 
         return self.objects, new_register

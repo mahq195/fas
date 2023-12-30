@@ -4,7 +4,7 @@ import numpy as np
 import argparse
 import warnings
 import time
-from utils.custom_utils import detect_face, predict_fas, tracking
+from utils.custom_utils import detect_face, predict_fas, tracking, adjust_bounding_box, get_feature
 
 warnings.filterwarnings('ignore')
 
@@ -31,31 +31,33 @@ while cap.isOpened():
     if ret is False:
         break
     
-    # Region for ID card 
-    cv2.line(frame_root, (0, 400), (600, 400), (255,255,255), 2)
-    cv2.line(frame_root, (600, 0), (600, 400), (255,255,255), 2)
-    cv2.rectangle(frame, (0, 0), (600, 400), (255,255,255), -1)
+    # # Region for ID card 
+    # cv2.line(frame_root, (0, 400), (600, 400), (255,255,255), 2)
+    # cv2.line(frame_root, (600, 0), (600, 400), (255,255,255), 2)
+    # cv2.rectangle(frame, (0, 0), (600, 400), (255,255,255), -1)
 
-    card_frame = frame_root[0:400, 0:600]
-    card_frame = cv2.resize(card_frame, (0,0), fx=2, fy=2)
+    # card_frame = frame_root[0:400, 0:600]
+    # card_frame = cv2.resize(card_frame, (0,0), fx=2, fy=2)
 
-    card_face_bbox, conf =  detect_face(card_frame)
-    if conf > 0.5:
-        cv2.rectangle(card_frame, (card_face_bbox[0], card_face_bbox[1]), (card_face_bbox[0] + card_face_bbox[2], card_face_bbox[1] + card_face_bbox[3]), (0, 255, 0), 2)
-    card_frame = cv2.resize(card_frame, (0,0), fx=0.5, fy=0.5)
-    frame_root[0:400, 0:600] = card_frame
+    # card_face_bbox, conf =  detect_face(card_frame)
+    # if conf > 0.1:
+    #     cv2.rectangle(card_frame, (card_face_bbox[0], card_face_bbox[1]), (card_face_bbox[0] + card_face_bbox[2], card_face_bbox[1] + card_face_bbox[3]), (0, 255, 0), 2)
+    # card_frame = cv2.resize(card_frame, (0,0), fx=0.5, fy=0.5)
+    # frame_root[0:400, 0:600] = card_frame
 
     # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     tic = time.time()
     image_bbox, _ = detect_face(frame)
-    new_register = tracking(image_bbox, frame_root)
-
-        
-        
-
+    image_bbox = adjust_bounding_box(image_bbox)
+    # print(bbox)
+    # new_register = tracking(image_bbox, frame_root)
+    x, y, w, h = image_bbox
+    face = frame[y:(y+h), x: (x+w)]
+    feature = get_feature(face)
+    print(feature.shape)
     # print('Detection time: ', (time.time() - tic))
-    if count_frame % 3 == 0:
-        label, value = predict_fas(image_bbox, frame)
+    # if count_frame % 3 == 0:
+    #     label, value = predict_fas(image_bbox, frame)
 
     
         
@@ -76,7 +78,7 @@ while cap.isOpened():
 
     # Display the frame on the screen
     cv2.imshow("frame", frame_root)
-    # cv2.imshow("card", card_frame)
+    cv2.imshow("face", face)
 
 
     # Check if the user has pressed the `q` key, if yes then close the program.

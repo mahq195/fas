@@ -3,7 +3,7 @@ import time
 import numpy as np
 import multiprocessing
 import matplotlib.pyplot as plt
-from utils.custom_utils import detect_face, predict_fas, tracking, process_model1, process_model2
+from utils.custom_utils import detect_face, predict_fas, tracking, process_model1, process_model2, adjust_bounding_box
 
 
 def camera(frame_fas, result_fas, frame_verify, result_verify):
